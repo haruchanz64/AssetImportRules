@@ -1,0 +1,30 @@
+{
+  "name": "com.haruchanz64.asset-import-rules",
+  "version": "1.0.0",
+  "displayName": "AssetImportRules",
+  "description": "Rule-driven Unity 6 Editor pipeline and UI Toolkit compliance workbench for Sprites, UI, Textures, 3D Models, and Audio clips, with non-destructive overrides, dry-run diff auditing, batch re-import, and custom IAssetImportRule extensibility.",
+  "unity": "6000.0",
+  "license": "MIT",
+  "keywords": [
+    "asset-pipeline",
+    "assetpostprocessor",
+    "optimization",
+    "sprites",
+    "textures",
+    "models",
+    "audio",
+    "editor-tools",
+    "ui-toolkit"
+  ],
+  "author": {
+    "name": "haruchanz64",
+    "url": "https://haruchanz64.github.io"
+  },
+  "samples": [
+    {
+      "displayName": "Custom Import Rule Sample",
+      "description": "Example IAssetImportRule showing how to extend AssetImportRules with custom naming or importer checks.",
+      "path": "Samples~/CustomRule"
+    }
+  ]
+}
