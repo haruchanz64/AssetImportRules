@@ -10,7 +10,7 @@ Rule-driven Unity 6 Editor pipeline and UI Toolkit compliance workbench for Spri
   - **3D Models:** `globalScale`, `useFileScale`, `meshCompression`, `isReadable`, `optimizeMeshPolygons`, `optimizeMeshVertices`, `importCameras`, `importLights`, `importVisibility`, `importBlendShapes`, `animationType`, `importAnimation`, `materialImportMode`, and `generateSecondaryUV`.
   - **Audio Clips:** `forceToMono`, `loadInBackground`, `ambisonic`, `loadType` (`DecompressOnLoad`, `CompressedInMemory`, `Streaming`), `compressionFormat` (`PCM`, `ADPCM`, `Vorbis`), `quality`, `sampleRateSetting`, and `sampleRateOverride`.
 - **Flexible path matching (`AssetPathMatcher`):** Target assets by folder prefix, glob patterns (`Assets/**/UI/**`, `Assets/**/*_Normal.*`), file extensions, global ignore patterns, and per-asset exemption labels (`ImportRulesIgnore`).
-- **UI Toolkit workbench (`Tools > AssetImportRules > Import Policy Workbench`):** Create starter policies (`Mobile 2D/UI/Audio`, `PC 3D URP`, `Pixel Art`), run dry-run compliance scans with exact `Current -> Expected` diffs, apply batch re-imports, test path patterns live, and export Markdown or JSON reports.
+- **UI Toolkit workbench (`Tools > HaruChanZ64 > Assets > AssetImportRules > Import Policy Workbench`):** Create starter policies (`Mobile 2D/UI/Audio`, `PC 3D URP`, `Pixel Art`), run dry-run compliance scans with exact `Current -> Expected` diffs, apply batch re-imports, test path patterns live, and export Markdown or JSON reports.
 - **Extensible rule engine (`IAssetImportRule`):** Implement `IAssetImportRule` in any Editor assembly to add studio-specific checks; `TypeCache` discovers custom rules automatically.
 - **Optional pre-build guard:** Enable `ImportAuditBuildGuard` in the workbench to warn or fail builds when non-compliant assets exist.
 
@@ -25,7 +25,7 @@ Rule-driven Unity 6 Editor pipeline and UI Toolkit compliance workbench for Spri
 
 ## Quick start
 
-1. Open **Tools > AssetImportRules > Import Policy Workbench**.
+1. Open **Tools > HaruChanZ64 > Assets > AssetImportRules > Import Policy Workbench**.
 2. Click **Create Mobile 2D/UI/Audio Policy** (or create a custom policy via **Assets > Create > AssetImportRules > Import Policy**).
 3. Switch to **Compliance Audit** and click **Scan Project (Dry Run)** to inspect non-compliant assets without modifying them.
 4. Click **Fix** on an individual asset or **Apply & Reimport All** to enforce the policy.

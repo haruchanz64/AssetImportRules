@@ -36,7 +36,7 @@ namespace AssetImportRules.Editor.UI
         private TextField _testPathField;
         private VisualElement _testPathOutput;
 
-        [MenuItem("Tools/AssetImportRules/Import Policy Workbench", false, 10)]
+        [MenuItem("Tools/HaruChanZ64/Assets/AssetImportRules/Import Policy Workbench", false, 150)]
         public static void ShowWindow()
         {
             var window = GetWindow<AssetImportRulesWindow>("AssetImportRules");
