@@ -9,10 +9,17 @@ namespace AssetImportRules.Editor.Pipeline
     /// </summary>
     public sealed class AssetImportRulesPostprocessor : AssetPostprocessor
     {
+        /// <summary>Unity preprocess hook invoked before importing texture and sprite assets.</summary>
         private void OnPreprocessTexture() => TryApply(assetImporter);
+        /// <summary>Unity preprocess hook invoked before importing 3D model assets.</summary>
         private void OnPreprocessModel() => TryApply(assetImporter);
+        /// <summary>Unity preprocess hook invoked before importing audio clip assets.</summary>
         private void OnPreprocessAudio() => TryApply(assetImporter);
 
+        /// <summary>
+        /// Applies the active policy and custom rules to <paramref name="importer"/> when enforcement mode
+        /// is <see cref="ImportEnforcementMode.AutoApplyOnImport"/> and the asset is not exempt.
+        /// </summary>
         private void TryApply(AssetImporter importer)
         {
             if (importer == null) return;

@@ -5,8 +5,19 @@ using UnityEngine;
 
 namespace AssetImportRules.Editor.Pipeline
 {
+    /// <summary>
+    /// Audits and applies <see cref="TextureImportRuleConfig"/> overrides, including optional per-platform settings,
+    /// against Unity <see cref="TextureImporter"/> instances.
+    /// </summary>
     public static class TextureRuleProcessor
     {
+        /// <summary>
+        /// Compares enabled overrides and platform settings on <paramref name="rule"/> against
+        /// <paramref name="importer"/> without mutating the importer.
+        /// </summary>
+        /// <param name="importer">Target texture importer to inspect.</param>
+        /// <param name="rule">Texture rule defining expected overrides.</param>
+        /// <param name="diffs">Destination list receiving any mismatched property entries.</param>
         public static void Audit(TextureImporter importer, TextureImportRuleConfig rule, List<ImportDiffEntry> diffs)
         {
             if (importer == null || rule == null) return;
@@ -46,6 +57,13 @@ namespace AssetImportRules.Editor.Pipeline
             }
         }
 
+        /// <summary>
+        /// Writes all enabled, differing overrides and platform texture settings from <paramref name="rule"/>
+        /// onto <paramref name="importer"/>.
+        /// </summary>
+        /// <param name="importer">Target texture importer to modify.</param>
+        /// <param name="rule">Texture rule supplying overrides to apply.</param>
+        /// <returns><c>true</c> if any importer or platform setting changed; otherwise <c>false</c>.</returns>
         public static bool Apply(TextureImporter importer, TextureImportRuleConfig rule)
         {
             if (importer == null || rule == null) return false;
@@ -139,6 +157,9 @@ namespace AssetImportRules.Editor.Pipeline
             return changed;
         }
 
+        /// <summary>
+        /// Records a diff entry when <paramref name="expected"/> is enabled and differs from <paramref name="current"/>.
+        /// </summary>
         private static void Check<T>(List<ImportDiffEntry> diffs, string ruleName, string prop, T current, RuleOverride<T> expected)
         {
             if (!expected.enabled) return;
@@ -154,6 +175,10 @@ namespace AssetImportRules.Editor.Pipeline
             }
         }
 
+        /// <summary>
+        /// Records a diff entry when <paramref name="expected"/> is enabled and differs from <paramref name="current"/>
+        /// using <see cref="Mathf.Approximately"/>.
+        /// </summary>
         private static void CheckFloat(List<ImportDiffEntry> diffs, string ruleName, string prop, float current, RuleOverride<float> expected)
         {
             if (!expected.enabled) return;

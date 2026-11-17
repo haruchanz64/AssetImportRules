@@ -14,6 +14,11 @@ namespace AssetImportRules.Editor.Pipeline
     {
         private const string ActivePolicyGuidKey = "AssetImportRules.ActivePolicyGuid";
 
+        /// <summary>
+        /// Loads the active <see cref="AssetImportPolicyAsset"/> stored in <see cref="EditorPrefs"/>,
+        /// falling back to the first policy asset found in the project via <see cref="AssetDatabase"/>.
+        /// </summary>
+        /// <returns>The active policy asset, or <c>null</c> if none exists in the project.</returns>
         public static AssetImportPolicyAsset GetActivePolicy()
         {
             string guid = EditorPrefs.GetString(ActivePolicyGuidKey, string.Empty);
@@ -36,6 +41,11 @@ namespace AssetImportRules.Editor.Pipeline
             return null;
         }
 
+        /// <summary>
+        /// Persists the GUID of <paramref name="policy"/> in <see cref="EditorPrefs"/> as the active project policy,
+        /// or clears the saved preference when <paramref name="policy"/> is <c>null</c>.
+        /// </summary>
+        /// <param name="policy">Policy asset to activate, or <c>null</c> to clear the saved selection.</param>
         public static void SetActivePolicy(AssetImportPolicyAsset policy)
         {
             if (policy == null)
@@ -52,6 +62,11 @@ namespace AssetImportRules.Editor.Pipeline
             }
         }
 
+        /// <summary>
+        /// Discovers and instantiates all concrete <see cref="IAssetImportRule"/> implementations with a public
+        /// parameterless constructor via <see cref="TypeCache"/>, sorted by ascending <see cref="IAssetImportRule.Priority"/>.
+        /// </summary>
+        /// <returns>Priority-ordered list of custom rule instances.</returns>
         public static List<IAssetImportRule> DiscoverCustomRules()
         {
             var rules = new List<IAssetImportRule>();
@@ -77,6 +92,13 @@ namespace AssetImportRules.Editor.Pipeline
             return rules;
         }
 
+        /// <summary>
+        /// Checks whether <paramref name="assetPath"/> is exempted by <paramref name="policy"/> via
+        /// <see cref="AssetImportPolicyAsset.globalIgnorePatterns"/> or the configured <see cref="AssetImportPolicyAsset.exemptAssetLabel"/>.
+        /// </summary>
+        /// <param name="assetPath">Project-relative asset path to inspect.</param>
+        /// <param name="policy">Policy defining global ignore patterns and the exempt label.</param>
+        /// <returns><c>true</c> if <paramref name="policy"/> is <c>null</c> or the asset is exempt; otherwise <c>false</c>.</returns>
         public static bool IsAssetExempt(string assetPath, AssetImportPolicyAsset policy)
         {
             if (policy == null) return true;
@@ -113,6 +135,13 @@ namespace AssetImportRules.Editor.Pipeline
             return false;
         }
 
+        /// <summary>
+        /// Returns all enabled texture rules in <paramref name="policy"/> matching <paramref name="assetPath"/>,
+        /// sorted by ascending <see cref="TextureImportRuleConfig.priority"/>.
+        /// </summary>
+        /// <param name="assetPath">Project-relative asset path.</param>
+        /// <param name="policy">Policy containing candidate texture rules.</param>
+        /// <returns>Priority-ordered list of matching texture rules.</returns>
         public static List<TextureImportRuleConfig> MatchTextureRules(string assetPath, AssetImportPolicyAsset policy)
         {
             var matched = new List<TextureImportRuleConfig>();
@@ -131,6 +160,13 @@ namespace AssetImportRules.Editor.Pipeline
             return matched;
         }
 
+        /// <summary>
+        /// Returns all enabled 3D model rules in <paramref name="policy"/> matching <paramref name="assetPath"/>,
+        /// sorted by ascending <see cref="ModelImportRuleConfig.priority"/>.
+        /// </summary>
+        /// <param name="assetPath">Project-relative asset path.</param>
+        /// <param name="policy">Policy containing candidate model rules.</param>
+        /// <returns>Priority-ordered list of matching model rules.</returns>
         public static List<ModelImportRuleConfig> MatchModelRules(string assetPath, AssetImportPolicyAsset policy)
         {
             var matched = new List<ModelImportRuleConfig>();
@@ -149,6 +185,13 @@ namespace AssetImportRules.Editor.Pipeline
             return matched;
         }
 
+        /// <summary>
+        /// Returns all enabled audio rules in <paramref name="policy"/> matching <paramref name="assetPath"/>,
+        /// sorted by ascending <see cref="AudioImportRuleConfig.priority"/>.
+        /// </summary>
+        /// <param name="assetPath">Project-relative asset path.</param>
+        /// <param name="policy">Policy containing candidate audio rules.</param>
+        /// <returns>Priority-ordered list of matching audio rules.</returns>
         public static List<AudioImportRuleConfig> MatchAudioRules(string assetPath, AssetImportPolicyAsset policy)
         {
             var matched = new List<AudioImportRuleConfig>();
@@ -167,6 +210,13 @@ namespace AssetImportRules.Editor.Pipeline
             return matched;
         }
 
+        /// <summary>
+        /// Scans Textures, 3D Models, and AudioClips under <paramref name="rootFolder"/> against <paramref name="policy"/>
+        /// and discovered <see cref="IAssetImportRule"/> implementations without modifying any asset.
+        /// </summary>
+        /// <param name="policy">Import policy to evaluate. Returns an empty 100-score report when <c>null</c>.</param>
+        /// <param name="rootFolder">Project-relative folder scope; defaults to <c>"Assets"</c> when null or whitespace.</param>
+        /// <returns>Populated <see cref="ImportComplianceReport"/> with computed score and per-asset diffs.</returns>
         public static ImportComplianceReport RunDryRunAudit(AssetImportPolicyAsset policy, string rootFolder = "Assets")
         {
             var report = new ImportComplianceReport
@@ -267,6 +317,14 @@ namespace AssetImportRules.Editor.Pipeline
             return report;
         }
 
+        /// <summary>
+        /// Applies <paramref name="policy"/> and discovered custom rules to each non-exempt path in
+        /// <paramref name="assetPaths"/> inside a single <see cref="AssetDatabase.StartAssetEditing"/> batch,
+        /// calling <see cref="AssetImporter.SaveAndReimport"/> only on modified importers.
+        /// </summary>
+        /// <param name="policy">Policy whose rules should be enforced.</param>
+        /// <param name="assetPaths">Project-relative asset paths to update.</param>
+        /// <returns>Number of assets whose importer settings changed and were re-imported.</returns>
         public static int ApplyPolicyToAssetPaths(AssetImportPolicyAsset policy, IEnumerable<string> assetPaths)
         {
             if (policy == null || assetPaths == null) return 0;
@@ -299,6 +357,15 @@ namespace AssetImportRules.Editor.Pipeline
             return updatedCount;
         }
 
+        /// <summary>
+        /// Applies all matching built-in rules (in ascending priority order) followed by matching
+        /// <paramref name="customRules"/> directly to <paramref name="importer"/> without saving or re-importing.
+        /// </summary>
+        /// <param name="assetPath">Project-relative path of the asset being processed.</param>
+        /// <param name="importer">Target Unity <see cref="AssetImporter"/>.</param>
+        /// <param name="policy">Policy supplying built-in rules.</param>
+        /// <param name="customRules">Optional pre-discovered custom rules sorted by priority.</param>
+        /// <returns><c>true</c> if any rule mutated the importer; otherwise <c>false</c>.</returns>
         internal static bool ApplyRulesToImporter(
             string assetPath,
             AssetImporter importer,

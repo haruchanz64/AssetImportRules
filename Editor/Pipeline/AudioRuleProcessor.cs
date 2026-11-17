@@ -5,8 +5,18 @@ using UnityEngine;
 
 namespace AssetImportRules.Editor.Pipeline
 {
+    /// <summary>
+    /// Audits and applies <see cref="AudioImportRuleConfig"/> overrides against Unity <see cref="AudioImporter"/> instances.
+    /// </summary>
     public static class AudioRuleProcessor
     {
+        /// <summary>
+        /// Compares enabled overrides on <paramref name="rule"/> against <paramref name="importer"/> and
+        /// its <see cref="AudioImporter.defaultSampleSettings"/> without mutating the importer.
+        /// </summary>
+        /// <param name="importer">Target audio importer to inspect.</param>
+        /// <param name="rule">Audio rule defining expected overrides.</param>
+        /// <param name="diffs">Destination list receiving any mismatched property entries.</param>
         public static void Audit(AudioImporter importer, AudioImportRuleConfig rule, List<ImportDiffEntry> diffs)
         {
             if (importer == null || rule == null) return;
@@ -33,6 +43,13 @@ namespace AssetImportRules.Editor.Pipeline
             }
         }
 
+        /// <summary>
+        /// Writes all enabled, differing overrides from <paramref name="rule"/> onto <paramref name="importer"/>,
+        /// clamping <c>quality</c> to [0, 1] and <c>sampleRateOverride</c> to at least 8000 Hz.
+        /// </summary>
+        /// <param name="importer">Target audio importer to modify.</param>
+        /// <param name="rule">Audio rule supplying overrides to apply.</param>
+        /// <returns><c>true</c> if any importer or default sample setting changed; otherwise <c>false</c>.</returns>
         public static bool Apply(AudioImporter importer, AudioImportRuleConfig rule)
         {
             if (importer == null || rule == null) return false;
@@ -96,6 +113,9 @@ namespace AssetImportRules.Editor.Pipeline
             return changed;
         }
 
+        /// <summary>
+        /// Records a diff entry when <paramref name="expected"/> is enabled and differs from <paramref name="current"/>.
+        /// </summary>
         private static void Check<T>(List<ImportDiffEntry> diffs, string ruleName, string prop, T current, RuleOverride<T> expected)
         {
             if (!expected.enabled) return;
@@ -111,6 +131,10 @@ namespace AssetImportRules.Editor.Pipeline
             }
         }
 
+        /// <summary>
+        /// Records a diff entry when <paramref name="expected"/> is enabled and differs from <paramref name="current"/>
+        /// using <see cref="Mathf.Approximately"/>.
+        /// </summary>
         private static void CheckFloat(List<ImportDiffEntry> diffs, string ruleName, string prop, float current, RuleOverride<float> expected)
         {
             if (!expected.enabled) return;

@@ -8,14 +8,29 @@ using UnityEngine;
 
 namespace AssetImportRules.Editor.Pipeline
 {
+    /// <summary>
+    /// Serializes <see cref="ImportComplianceReport"/> instances to JSON and Markdown summaries.
+    /// </summary>
     public static class ImportAuditExporter
     {
+        /// <summary>
+        /// Serializes <paramref name="report"/> to JSON via <see cref="JsonUtility.ToJson(object, bool)"/>.
+        /// </summary>
+        /// <param name="report">Compliance report to serialize.</param>
+        /// <param name="prettyPrint">When <c>true</c>, formats JSON with indentation and line breaks.</param>
+        /// <returns>JSON representation of the report.</returns>
         public static string ToJson(ImportComplianceReport report, bool prettyPrint = true)
         {
             if (report == null) throw new ArgumentNullException(nameof(report));
             return JsonUtility.ToJson(report, prettyPrint);
         }
 
+        /// <summary>
+        /// Formats <paramref name="report"/> as a Markdown document containing summary metrics
+        /// and a table of non-compliant assets with <c>current -&gt; expected</c> diffs.
+        /// </summary>
+        /// <param name="report">Compliance report to format.</param>
+        /// <returns>Markdown report text.</returns>
         public static string ToMarkdown(ImportComplianceReport report)
         {
             if (report == null) throw new ArgumentNullException(nameof(report));
@@ -63,20 +78,32 @@ namespace AssetImportRules.Editor.Pipeline
         private const string EnabledKey = "AssetImportRules.PreBuildEnabled";
         private const string FailKey = "AssetImportRules.PreBuildFailOnNonCompliant";
 
+        /// <inheritdoc/>
         public int callbackOrder => 15;
 
+        /// <summary>
+        /// Gets or sets whether the pre-build compliance audit runs before Unity builds (stored in <see cref="EditorPrefs"/>).
+        /// </summary>
         public static bool Enabled
         {
             get => EditorPrefs.GetBool(EnabledKey, false);
             set => EditorPrefs.SetBool(EnabledKey, value);
         }
 
+        /// <summary>
+        /// Gets or sets whether non-compliant assets throw a <see cref="BuildFailedException"/> instead of logging a warning.
+        /// </summary>
         public static bool FailOnNonCompliant
         {
             get => EditorPrefs.GetBool(FailKey, false);
             set => EditorPrefs.SetBool(FailKey, value);
         }
 
+        /// <summary>
+        /// Runs a dry-run audit against the active policy before a player build when <see cref="Enabled"/> is <c>true</c>
+        /// and the active policy is not <see cref="ImportEnforcementMode.Disabled"/>.
+        /// </summary>
+        /// <param name="report">Unity build report for the pending build.</param>
         public void OnPreprocessBuild(BuildReport report)
         {
             if (!Enabled) return;

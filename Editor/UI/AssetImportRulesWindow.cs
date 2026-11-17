@@ -36,6 +36,9 @@ namespace AssetImportRules.Editor.UI
         private TextField _testPathField;
         private VisualElement _testPathOutput;
 
+        /// <summary>
+        /// Opens or focuses the Import Policy Workbench editor window.
+        /// </summary>
         [MenuItem("Tools/HaruChanZ64/Assets/AssetImportRules/Import Policy Workbench", false, 150)]
         public static void ShowWindow()
         {
@@ -44,6 +47,9 @@ namespace AssetImportRules.Editor.UI
             window.Show();
         }
 
+        /// <summary>
+        /// Builds the UI Toolkit layout for the workbench header, navigation tabs, scroll body, and status bar.
+        /// </summary>
         public void CreateGUI()
         {
             _policy = AssetComplianceAuditor.GetActivePolicy();
@@ -86,6 +92,7 @@ namespace AssetImportRules.Editor.UI
             SelectTab(0);
         }
 
+        /// <summary>Creates a styled tab button bound to <see cref="SelectTab"/>.</summary>
         private Button CreateTabButton(string label, int index)
         {
             var btn = new Button(() => SelectTab(index)) { text = label };
@@ -93,6 +100,7 @@ namespace AssetImportRules.Editor.UI
             return btn;
         }
 
+        /// <summary>Switches the active workbench tab and rebuilds the scroll body for that tab.</summary>
         private void SelectTab(int index)
         {
             _activeTab = index;
@@ -110,6 +118,7 @@ namespace AssetImportRules.Editor.UI
             }
         }
 
+        /// <summary>Builds the Policy and Presets tab with policy selection, starter presets, pre-build guard toggles, inspector, and discovered custom rules.</summary>
         private void BuildPolicyTab()
         {
             var policyCard = new VisualElement();
@@ -185,6 +194,7 @@ namespace AssetImportRules.Editor.UI
             _body.Add(customCard);
         }
 
+        /// <summary>Builds the Compliance Audit tab with folder scope, category filter, batch actions, KPI summary, and diff list.</summary>
         private void BuildAuditTab()
         {
             var ctrlCard = new VisualElement();
@@ -223,6 +233,7 @@ namespace AssetImportRules.Editor.UI
             RenderAuditResults();
         }
 
+        /// <summary>Builds the Path Rule Tester tab for live evaluation of sample asset paths against the active policy.</summary>
         private void BuildPathTesterTab()
         {
             var card = new VisualElement();
@@ -249,6 +260,7 @@ namespace AssetImportRules.Editor.UI
             EvaluateTestPath();
         }
 
+        /// <summary>Prompts for an asset save path, creates a configured starter <see cref="AssetImportPolicyAsset"/>, and sets it active.</summary>
         private void CreateStarterPolicy(string suffix, Action<AssetImportPolicyAsset> configure)
         {
             string path = EditorUtility.SaveFilePanelInProject(
@@ -270,6 +282,7 @@ namespace AssetImportRules.Editor.UI
             SelectTab(0);
         }
 
+        /// <summary>Executes a dry-run audit against the active policy and refreshes the Compliance Audit tab.</summary>
         private void RunDryRun()
         {
             if (_policy == null)
@@ -285,6 +298,7 @@ namespace AssetImportRules.Editor.UI
             else RenderAuditResults();
         }
 
+        /// <summary>Renders KPI cards and filtered non-compliant asset diff rows from <see cref="_lastReport"/>.</summary>
         private void RenderAuditResults()
         {
             if (_auditKpiRow == null || _auditResultsContainer == null) return;
@@ -367,6 +381,7 @@ namespace AssetImportRules.Editor.UI
             }
         }
 
+        /// <summary>Applies the active policy to all non-compliant assets in the last report and re-runs the audit.</summary>
         private void FixAllNonCompliant()
         {
             if (_policy == null || _lastReport == null || _lastReport.nonCompliantItems.Count == 0)
@@ -382,6 +397,7 @@ namespace AssetImportRules.Editor.UI
             RunDryRun();
         }
 
+        /// <summary>Evaluates the sample path input against exemptions and built-in rules and prints matches.</summary>
         private void EvaluateTestPath()
         {
             if (_testPathOutput == null) return;
@@ -419,6 +435,7 @@ namespace AssetImportRules.Editor.UI
             foreach (var r in aud) _testPathOutput.Add(new Label($"[Audio] {r.ruleName} (priority {r.priority}, pattern '{r.pathPattern}')"));
         }
 
+        /// <summary>Copies the last compliance report formatted as Markdown to the system clipboard.</summary>
         private void CopyAuditMarkdown()
         {
             if (_lastReport == null) return;
@@ -426,6 +443,7 @@ namespace AssetImportRules.Editor.UI
             SetStatus("Copied Markdown compliance report to clipboard.");
         }
 
+        /// <summary>Saves the last compliance report as pretty-printed JSON via a file dialog.</summary>
         private void ExportAuditJson()
         {
             if (_lastReport == null) return;
@@ -435,11 +453,13 @@ namespace AssetImportRules.Editor.UI
             SetStatus($"Exported JSON report to {path}");
         }
 
+        /// <summary>Updates the footer status bar text.</summary>
         private void SetStatus(string message)
         {
             if (_statusLabel != null) _statusLabel.text = message;
         }
 
+        /// <summary>Creates a styled section heading label.</summary>
         private static Label MakeSectionTitle(string text)
         {
             var lbl = new Label(text);
@@ -447,6 +467,7 @@ namespace AssetImportRules.Editor.UI
             return lbl;
         }
 
+        /// <summary>Appends a single KPI metric card to <paramref name="parent"/>.</summary>
         private static void AddKpi(VisualElement parent, string label, string value)
         {
             var box = new VisualElement();
@@ -460,6 +481,7 @@ namespace AssetImportRules.Editor.UI
             parent.Add(box);
         }
 
+        /// <summary>Loads <c>AssetImportRulesStyles.uss</c> from the package path (or falls back to an AssetDatabase search) and attaches it.</summary>
         private static void AttachStyles(VisualElement target)
         {
             const string pkgPath = "Packages/com.haruchanz64.asset-import-rules/Editor/UI/AssetImportRulesStyles.uss";
